@@ -1,40 +1,99 @@
+enum Color { BLACK, RED };
+enum Position { LEFT, RIGHT };
 
-template <typename T> struct redBlackTreeNode {
-  enum Color { BLACK, RED };
-  typedef redBlackTreeNode *node;
-  T element;
-  node left;
-  node right;
-  node parent;
-  Color c;
+template <typename K, typename V> struct redBlackTreeNode {
+
+  using key = K;
+  using value = V;
+  using node = redBlackTreeNode *;
+
+  key k;
+  value v;
+  node left, right, parent;
+  Position position;
+  Color color;
 
   redBlackTreeNode()
-      : element(T()), left(nullptr), right(nullptr), parent(nullptr),
-        c(BLACK){};
+      : k(K()), v(V()), left(nullptr), right(nullptr), parent(nullptr),
+        color(BLACK){};
 
-  redBlackTreeNode(T el)
-      : element(el), left(nullptr), right(nullptr), parent(nullptr), c(RED){};
+  redBlackTreeNode(key k, value v)
+      : k(k), v(v), left(nullptr), right(nullptr), position(LEFT),
+        parent(nullptr), color(RED){};
 
-  redBlackTreeNode(T el, Color c)
-      : element(el), left(nullptr), right(nullptr), parent(nullptr), c(c){};
+  redBlackTreeNode(key k, value v, Color c)
+      : k(k), v(v), left(nullptr), right(nullptr), parent(nullptr), color(c){};
 
-  redBlackTreeNode(T el, node l = nullptr, node r = nullptr, node p = nullptr,
-                   Color c = RED)
-      : element(el), left(l), right(r), parent(p), c(c){};
+  redBlackTreeNode(key k, value v, node l = nullptr, node r = nullptr,
+                   node p = nullptr, Color c = RED)
+      : k(k), v(v), left(l), right(r), parent(p), color(c){};
 };
 
-template <typename T> class redBlackTree {
+template <typename K, typename V> class redBlackTree {
 public:
-  typedef T type;
-  typedef redBlackTreeNode<type> node;
+  using value_size = unsigned long long;
+  using key = K;
+  using value = V;
+  using Node = redBlackTreeNode<key, value> *;
+  redBlackTree() : _root(nullptr) {}
 
-  redBlackTree() : root(nullptr) {}
-
-  // node rotateLeft(node head) {
-  // }
+  void updateRelation(Node parent, Node child, Position child_pos) {
+    parent->right = child;
+    child->parent = parent;
+    child->position = child_pos;
+  }
 
 private:
-  node *root;
+  void insert(Node parent, Node new_node) {
+    if (new_node->key > parent->key) {
+      if (parent->right == nullptr) {
+        return updateRelation(parent, new_node, RIGHT);
+      }
+      return add(parent->right, new_node);
+    }
+    if (parent->left == nullptr) {
+      return updateRelation(parent, new_node, LEFT);
+    }
+    return add(parent->left, new_node);
+  }
+
+  // getColorOfUncle
+
+  void correctTree(Node node) {
+    Node parent = node->parent;
+    Node grand_parent = node->parent->parent;
+    if (parent->position == LEFT) {
+      if (grand_parent->right == nullptr || parent->parent->color == BLACK) {
+      }
+    }
+    // if (getColorOfUncle == BLACK)
+    //   colorFlip();
+  }
+
+  void checkColor(Node node) {
+    if (node == nullptr)
+      return;
+    if (node->color == RED && node->parent->color == RED) {
+      correctTree(node);
+      checkColor(node->parent);
+    }
+  }
+
+public:
+  void insert(key k, value v) {
+    auto node = new Node(k, v);
+    _size += 1;
+    if (_root == nullptr) {
+      _root = node;
+      node->color = BLACK;
+      return;
+    }
+    insert(_root, node);
+  }
+
+private:
+  Node _root;
+  value_size _size;
 };
 
 int main() {}

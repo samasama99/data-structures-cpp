@@ -40,7 +40,7 @@ public:
   typedef BSTnode<value_type> node;
 
 private:
-  node *removeHelper(node *head, value_type el) {
+  node *remove(node *head, value_type el) {
     if (head == nullptr)
       return nullptr;
     if (c(head->element, el))
@@ -66,7 +66,7 @@ private:
     return head;
   }
 
-  bool findHelper(node *head, value_type elem) const {
+  bool find(node *head, value_type elem) const {
     if (head == nullptr)
       return false;
     if (!c(head->element, elem) && !c(elem, head->element))
@@ -74,39 +74,39 @@ private:
     return findHelper(head->left, elem) || findHelper(head->right, elem);
   }
 
-  void printHelper(node *head, size_t depth = 0) const {
+  void print(node *head, size_t depth = 0) const {
     if (head == nullptr) {
-      std::cout << std::string(pow(depth, 2), '_') << "null" << '\n';
+      // std::cout << std::string(pow(depth, 2), '\t') << "null" << "\n\n";
       return;
     }
-    printHelper(head->left, depth + 1);
-    std::cout << std::string(pow(depth, 2), '_') << head->element << '\n';
-    printHelper(head->right, depth + 1);
+    print(head->left, depth + 1);
+    std::cout << std::string(depth, '\t') << head->element << "\n\n";
+    print(head->right, depth + 1);
   }
 
-  node *insertHelper(node *head, T nelem) {
+  node *insert(node *head, T nelem) {
     if (head == nullptr)
       return new node(nelem);
     if (c(head->element, nelem))
-      head->left = insertHelper(head->left, nelem);
+      head->left = insert(head->left, nelem);
     if (c(nelem, head->element))
-      head->right = insertHelper(head->right, nelem);
+      head->right = insert(head->right, nelem);
     if (!c(head->element, nelem) && !c(nelem, head->element))
       head->element = nelem;
     return head;
   }
 
-  void freeHelper(node *head) {
+  void freeAll(node *head) {
     if (head == nullptr)
       return;
     node *left = head->left;
     node *right = head->right;
     delete head;
-    freeHelper(left);
-    freeHelper(right);
+    freeAll(left);
+    freeAll(right);
   }
 
-  node *deepestHelper(node *head) {
+  node *deepest(node *head) {
     if (head == nullptr)
       return nullptr;
     if (head->left == nullptr)
@@ -123,18 +123,18 @@ public:
 
   bool find(value_type el) { return findHelper(root, el); }
 
-  void print() { printHelper(root); }
+  void print() { print(root); }
 
-  void insert(value_type el) { root = insertHelper(root, el); }
+  void insert(value_type el) { root = insert(root, el); }
 
   void freeAll() {
-    freeHelper(root);
+    freeAll(root);
     root = nullptr;
   }
 
   void remove(value_type el) { root = removeHelper(root, el); }
 
-  node *deepest() { return deepestHelper(root); }
+  node *deepest() { return deepest(root); }
 
 private:
   node *root;
@@ -144,4 +144,12 @@ private:
 using std::string;
 
 int main() {
+  binarySearchTree<int> tree;
+  tree.insert(5);
+  tree.insert(3);
+  tree.insert(1);
+  tree.insert(9);
+  tree.insert(2);
+  tree.insert(-10);
+  tree.print();
 }
