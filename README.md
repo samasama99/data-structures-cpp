@@ -1,5 +1,5 @@
 # Trees :
 ## implementing :
-- [ ] binary searsh tree.
+- [ ] Binary Searsh Tree.
 - [ ] AVL tree.
 - [ ] Red Black Tree.
