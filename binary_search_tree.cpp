@@ -18,9 +18,9 @@ template <typename T, typename U> struct keyCompare {
   }
 };
 
-template <typename T, class Comp = std::greater<T>> class binarySearchTree {
+template <typename T, class Comp = std::less<T>> class binarySearchTree {
 private:
-  template <typename Obj, typename C = std::greater<Obj>> struct BSTnode {
+  template <typename Obj, typename C = std::less<Obj>> struct BSTnode {
     Obj element;
     BSTnode *left;
     BSTnode *right;
@@ -44,9 +44,9 @@ private:
     if (head == nullptr)
       return nullptr;
     if (c(head->element, el))
-      head->left = removeHelper(head->left, el);
+      head->left = remove(head->left, el);
     else if (c(el, head->element))
-      head->right = removeHelper(head->right, el);
+      head->right = remove(head->right, el);
     else {
       if (!head->left && !head->right) {
         return nullptr;
@@ -59,9 +59,9 @@ private:
         delete head;
         return tmp;
       }
-      node *tmp = deepestHelper(head->right);
+      node *tmp = inOrderPredecessor(head);
       head->element = tmp->element;
-      head->right = removeHelper(head->right, tmp->element);
+      head->right = remove(head->right, tmp->element);
     }
     return head;
   }
@@ -71,7 +71,7 @@ private:
       return false;
     if (!c(head->element, elem) && !c(elem, head->element))
       return true;
-    return findHelper(head->left, elem) || findHelper(head->right, elem);
+    return find(head->left, elem) || find(head->right, elem);
   }
 
   void print(node *head, size_t depth = 0) const {
@@ -79,9 +79,9 @@ private:
       // std::cout << std::string(pow(depth, 2), '\t') << "null" << "\n\n";
       return;
     }
-    print(head->left, depth + 1);
-    std::cout << std::string(depth, '\t') << head->element << "\n\n";
     print(head->right, depth + 1);
+    std::cout << std::string(depth, '\t') << head->element << "\n\n";
+    print(head->left, depth + 1);
   }
 
   node *insert(node *head, T nelem) {
@@ -106,12 +106,32 @@ private:
     freeAll(right);
   }
 
-  node *deepest(node *head) {
+  node *theLeftest(node *head) {
     if (head == nullptr)
       return nullptr;
     if (head->left == nullptr)
       return head;
-    return deepestHelper(head->left);
+    return theLeftest(head->left);
+  }
+
+  node *theRightest(node *head) {
+    if (head == nullptr)
+      return nullptr;
+    if (head->right == nullptr)
+      return head;
+    return theRightest(head->right);
+  }
+
+  node *inOrderSuccessor(node *head) {
+    if (head == nullptr)
+      return nullptr;
+    return theRightest(head->left);
+  }
+
+  node *inOrderPredecessor(node *head) {
+    if (head == nullptr)
+      return nullptr;
+    return theLeftest(head->right);
   }
 
 public:
@@ -121,35 +141,52 @@ public:
       freeAll();
   };
 
-  bool find(value_type el) { return findHelper(root, el); }
+  bool find(value_type el) { return find(root, el); }
 
   void print() { print(root); }
 
   void insert(value_type el) { root = insert(root, el); }
+
+  template <typename Type, typename... Types>
+  void insert(Type var1, Types... var2) {
+    static_assert(std::is_same<value_type, Type>::value,
+                  "insert accept only one type");
+    insert(var1);
+
+    insert(var2...);
+  }
 
   void freeAll() {
     freeAll(root);
     root = nullptr;
   }
 
-  void remove(value_type el) { root = removeHelper(root, el); }
+  void remove(value_type el) { root = remove(root, el); }
 
-  node *deepest() { return deepest(root); }
+  node *inOrderSuccessor() { return inOrderSuccessor(root); }
+  node *inOrderPredecessor() { return inOrderPredecessor(root); }
 
 private:
   node *root;
   compare c;
 };
 
+using std::cerr;
 using std::string;
 
 int main() {
   binarySearchTree<int> tree;
-  tree.insert(5);
-  tree.insert(3);
-  tree.insert(1);
-  tree.insert(9);
-  tree.insert(2);
-  tree.insert(-10);
+  tree.insert(8, 4, 12, 2, 10, 14, 1, 3, 5, 9, 11, 13, 15, 7);
+  cerr << tree.inOrderSuccessor()->element << '\n';
+  cerr << tree.inOrderPredecessor()->element << '\n';
+  // cerr << std::endl;
+  // cerr << tree.find(3) << '\n';
+  // cerr << tree.find(-100) << '\n';
+  // cerr << std::endl;
+  tree.print();
+  tree.remove(3);
+  tree.remove(-100);
+  tree.remove(14);
+  cerr << std::endl;
   tree.print();
 }
