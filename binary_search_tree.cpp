@@ -89,8 +89,6 @@ class binarySearchTree {
 
     void print(node head, size_t depth = 0) const {
         if (head == nullptr) {
-            // std::cout << std::string(pow(depth, 2), '\t') << "null" <<
-            // "\n\n";
             return;
         }
         print(head->right, depth + 1);
@@ -138,8 +136,16 @@ class binarySearchTree {
         return theLeftest(head->right);
     }
 
+    size_t getMaxLen(node head) {
+        if (head == nullptr)
+            return 0;
+        return 1 + std::max(getMaxLen(head->left), getMaxLen(head->right));
+    }
+
    public:
     binarySearchTree() : _root(nullptr), _c(compare()), _size(0){};
+
+    size_t getMaxLen() {return getMaxLen(_root);};
 
     template <typename Type, typename... Types>
     binarySearchTree(Type var1, Types... var2)
@@ -183,9 +189,7 @@ class binarySearchTree {
 
    private:
     node left_rotate(node* head) {
-        std::cerr << head << " " << head->element << '\n';
         node temp = head->right;
-        std::cerr << temp << "\n";
         head->right = temp->left;
         temp->left = head;
         return temp;
@@ -277,7 +281,8 @@ using std::string;
 #define leaks() system("leaks a.out");
 
 int main() {
-    binarySearchTree<int> tree(20, 30, 15, 10, 7, 11, 16);
+    binarySearchTree<int> tree(20, 30, 15, 10, 7, 11, 16, 90);
     tree.right_rotate(20);
     tree.print();
+    std::cerr << "get max len " << tree.getMaxLen() << '\n';
 }
